@@ -1,4 +1,4 @@
-# Event-Driven System — Java 21 + Spring Boot + Kafka + Redis + MongoDB
+# Event-Driven System
 
 A production-grade event-driven order management system demonstrating clean
 architecture principles, idempotent event processing, multi-layer caching, and
