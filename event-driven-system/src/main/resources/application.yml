@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: event-driven-system
+
+  # MongoDB
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/eventdb
+      database: eventdb
+
+    # Redis
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+
+  # Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 1
+    consumer:
+      group-id: event-driven-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.eventdriven.domain.event"
+    listener:
+      ack-mode: manual
+      concurrency: 3
+
+  # Cache
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000   # 10 minutes in ms
+      cache-null-values: false
+
+# Kafka Topics
+app:
+  kafka:
+    topics:
+      order-created: order.created
+      order-updated: order.updated
+      order-cancelled: order.cancelled
+      payment-processed: payment.processed
+      notification: notification.send
+  cache:
+    orders-ttl: 600     # seconds
+    products-ttl: 3600  # 1 hour
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,kafkaTopics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.example.eventdriven: DEBUG
+    org.springframework.kafka: INFO
+    org.springframework.data.mongodb: DEBUG
